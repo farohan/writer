@@ -1,4 +1,4 @@
-const paper = document.getElementById('paper');
+const notesSection = document.getElementById('notes');
 const speakBtn = document.getElementById('speak-btn');
 
 function write() {
@@ -13,7 +13,7 @@ function write() {
     }
 
     recognition.onspeechend = function() {
-        status.innerHTML = `Done listening...`;
+        status.innerHTML = `Stopped listening...`;
 
         recognition.stop();
     }
@@ -23,22 +23,30 @@ function write() {
         let confidence = event.results[0][0].confidence;
 
         accuracy.innerHTML = `${Math.round(confidence * 100)}% Accuracy`;
-        paper.innerHTML += `${transcript} `;
+        const paper = document.createElement('div');
+
+        paper.classList.add('paper');
+        paper.setAttribute('placeholder', 'Begin speaking to write...');
+        paper.innerHTML += `${transcript}`;
+
+        const copyBtn = document.createElement('button');
+        copyBtn.innerHTML = 'Copy';
+        copyBtn.classList.add('copy-btn');
+        copyBtn.addEventListener('click', copyToClipboard);
+
+        function copyToClipboard() {
+            const target = copyBtn.parentElement.firstChild;
+            console.log(target.textContent);
+
+            navigator.clipboard.writeText(target.textContent);
+            alert(`You copied: ${target.textContent}`);
+        }
+
+        paper.appendChild(copyBtn);
+        notesSection.appendChild(paper);
     }
 
     recognition.start();
 }
 
 speakBtn.addEventListener('click', write);
-
-const copier = document.getElementById('copier');
-
-function copyWriting() {
-    paper.select();
-    paper.setSelectionRange(0, 99999);
-
-    document.execCommand('copy');
-    alert(`You just copied: ${paper.value}`);
-}
-
-copier.addEventListener('click', copyWriting);
